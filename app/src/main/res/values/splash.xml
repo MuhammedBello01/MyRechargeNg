@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <style name="Theme.SplashScreen.ComposeSplash" parent="Theme.SplashScreen.IconBackground">-->
+<!--        <item name="windowSplashScreenBackground">#FFFFFF</item>-->
+<!--        <item name="windowSplashScreenAnimatedIcon">@drawable/my_recharge_splash</item>-->
+<!--        <item name="windowSplashScreenIconBackgroundColor">#FFFFFF</item>-->
+<!--        <item name="android:windowSplashScreenAnimationDuration">3000</item>-->
+<!--    </style>-->
+</resources>
