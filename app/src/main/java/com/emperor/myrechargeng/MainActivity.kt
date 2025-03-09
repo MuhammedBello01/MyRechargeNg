@@ -58,7 +58,9 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                    modifier = Modifier.fillMaxSize(),) { innerPadding ->
                     Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-                        InternetAwareWebView(url = "https://myrecharge.ng",
+                        val devUrl: String = "https://my-recharge-web-services-git-feature-mobil-44ddd0-myrechargedev.vercel.app"
+                        val prodUrl: String = "https://myrecharge.ng"
+                        InternetAwareWebView(url = devUrl,
                             onWebViewCreated = { webViewInstance ->
                                 webView = webViewInstance // Capture WebView instance for back navigation
                             })
