@@ -2,6 +2,10 @@ package com.emperor.myrechargeng
 
 
 import android.os.Bundle
+import android.util.Log
+import android.webkit.CookieManager
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -60,11 +64,11 @@ class MainActivity : ComponentActivity() {
                     Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                         val devUrl: String = "https://my-recharge-web-services-git-feature-mobil-44ddd0-myrechargedev.vercel.app"
                         val prodUrl: String = "https://myrecharge.ng"
+                        Spacer(Modifier.height(50.dp))
                         InternetAwareWebView(url = devUrl,
                             onWebViewCreated = { webViewInstance ->
-                                webView = webViewInstance // Capture WebView instance for back navigation
+                                webView = webViewInstance
                             })
-                        //LoadBrowser(url = "https://myrecharge.ng")
                     }
                 }
             }
@@ -81,35 +85,90 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+//@Composable
+//fun DisplayWebView(url: String, onWebViewCreated: (WebView) -> Unit) {
+//    val context = LocalContext.current
+//    val webViewState = remember { mutableStateOf<WebView?>(null) }
+//    val cacheBusterUrl = "$url?timestamp=${System.currentTimeMillis()}"
+//
+//    AndroidView(modifier = Modifier.fillMaxSize(), factory = { ctx ->
+//        WebView(ctx).apply {
+//            onWebViewCreated(this)
+//            webViewClient = object : WebViewClient(){
+//                override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
+//                    return super.shouldInterceptRequest(view, request)
+//                }
+//
+//                override fun onPageFinished(view: WebView?, url: String?) {
+//                    super.onPageFinished(view, url)
+//                    view?.clearCache(true)
+//                }
+//            }
+//            settings.apply {
+//                javaScriptEnabled = true
+//                domStorageEnabled = true
+//                loadWithOverviewMode = true
+//                useWideViewPort = true
+//                cacheMode = WebSettings.LOAD_NO_CACHE // Prevent cached content issues
+//                allowFileAccess = true // Allow access to local resources
+//                javaScriptCanOpenWindowsAutomatically = true // Handle JavaScript popups
+//                setSupportZoom(true) // Enable zoom controls
+//                builtInZoomControls = true // Add built-in zoom controls
+//                displayZoomControls = false // Hide default zoom buttons
+//            }
+//            clearCache(true) //ClearCache
+//            clearHistory() //Clear history
+//            CookieManager.getInstance().removeAllCookies(null) //remove all cookies
+//            CookieManager.getInstance().flush()
+//            loadUrl(cacheBusterUrl) //load url
+//        }
+//    }, update = { webView ->
+//        webViewState.value = webView
+//        webView.loadUrl(cacheBusterUrl)
+//    })
+//}
+
 @Composable
 fun DisplayWebView(url: String, onWebViewCreated: (WebView) -> Unit) {
     val context = LocalContext.current
-    val webViewState = remember { mutableStateOf<WebView?>(null) }
+    val cacheBusterUrl = "$url?timestamp=${System.currentTimeMillis()}"
 
-    AndroidView(modifier = Modifier.fillMaxSize(), factory = { ctx ->
-        WebView(ctx).apply {
-            onWebViewCreated(this)
-            webViewClient = WebViewClient()
-            settings.apply {
-                javaScriptEnabled = true
-                domStorageEnabled = true
-                loadWithOverviewMode = true
-                useWideViewPort = true
-                cacheMode = WebSettings.LOAD_NO_CACHE // Prevent cached content issues
-                allowFileAccess = true // Allow access to local resources
-                javaScriptCanOpenWindowsAutomatically = true // Handle JavaScript popups
-                setSupportZoom(true) // Enable zoom controls
-                builtInZoomControls = true // Add built-in zoom controls
-                displayZoomControls = false // Hide default zoom buttons
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = { ctx ->
+            WebView(ctx).apply {
+                settings.apply {
+                    javaScriptEnabled = true
+                    domStorageEnabled = true
+                    loadWithOverviewMode = true
+                    useWideViewPort = true
+                    cacheMode = WebSettings.LOAD_NO_CACHE
+                    allowFileAccess = true
+                    javaScriptCanOpenWindowsAutomatically = true
+                    setSupportZoom(true)
+                    builtInZoomControls = true
+                    displayZoomControls = false
+                    mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                }
+
+                webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        CookieManager.getInstance().flush()
+                    }
+                }
+
+                // Ensure the cache is cleared before loading a new page
+                clearCache(true)
+                clearHistory()
+                //CookieManager.getInstance().removeAllCookies(null)
+                CookieManager.getInstance().setAcceptCookie(true)
+                onWebViewCreated(this)
+
+                loadUrl(cacheBusterUrl)
             }
-            clearCache(true)
-            clearHistory()
-            loadUrl(url)
         }
-    }, update = { webView ->
-        webViewState.value = webView
-        webView.loadUrl(url)
-    })
+    )
 }
 
 // Composable function for the WebView with internet check
@@ -122,8 +181,11 @@ fun InternetAwareWebView(url: String, onWebViewCreated: (WebView) -> Unit) {
 
     if (isInternetAvailable) {
         // Show the WebView when internet is available
+        Log.e("<<url>>", url)
         DisplayWebView(url = url, onWebViewCreated = onWebViewCreated)
-    } else {
+        Log.e("<<Opened Url Successful>>", url)
+    }
+    else {
         // Show BottomSheet dialog when internet is not available
         showDialog = true
     }
